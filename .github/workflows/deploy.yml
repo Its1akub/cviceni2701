@@ -35,6 +35,7 @@ jobs:
         with:
           # Cesta, kde se po buildu vytvoří výsledný projekt
           path: ./dist
+
   deploy:
     permissions:
       contents: read
