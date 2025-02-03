@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { calcAge } from '../utils';
 
 export default function AgeCalculator() {
     const [birthYear, setBirthYear] = useState('');
-    const [age, setAge] = useState(null);
+    const [age, setAge] = useState<number | null>(null);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setBirthYear(value);
-        if (value && !isNaN(value)) {
+        if (value && !isNaN(Number(value))) {
             setAge(calcAge(parseInt(value, 10)));
         } else {
             setAge(null);
