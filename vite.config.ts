@@ -6,3 +6,4 @@ export default defineConfig({
   base: '/cviceni2701/',
   plugins: [react()],
 })
+
