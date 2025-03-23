@@ -1,33 +1,21 @@
-// PasswordInput.tsx
-import React, { useState } from 'react';
+import React from 'react';
 
 interface PasswordInputProps {
-    setPassword: (password: string) => void;
+    passwordValue: string | null,
+    setter: React.Dispatch<React.SetStateAction<string | null>>
 }
 
-const PasswordInput: React.FC<PasswordInputProps> = ({ setPassword }) => {
-    const [showPassword, setShowPassword] = useState(false);
 
-    const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(event.target.value);
-    };
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+const PasswordInput: React.FC<PasswordInputProps> = ({passwordValue,setter}: PasswordInputProps) => {
+    const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setter(event.target.value)
+    }
 
     return (
-        <div>
-            <input
-                type={showPassword ? 'text' : 'password'}
-                onChange={handlePasswordChange}
-                placeholder="Zadejte heslo"
-            />
-            <button onClick={togglePasswordVisibility}>
-                {showPassword ? '🫣' : '👁️'}
-            </button>
+        <div className="mb-3 text-white">
+            <input type={'text'} className="form-control" onChange={changeHandler} value={passwordValue ?? ""}/>
         </div>
-    );
-};
+    )
+}
 
-export default PasswordInput;
+export  default PasswordInput;
