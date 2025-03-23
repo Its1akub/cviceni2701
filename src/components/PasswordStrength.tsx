@@ -1,46 +1,55 @@
-// PasswordStrength.tsx
-import React from 'react';
+import {useEffect, useState} from "react";
 
 interface PasswordStrengthProps {
-    password: string;
+    password: string | null;
 }
 
-const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password }) => {
-    const criteria = [
-        { regex: /.{8,}/, message: 'Minimálně 8 znaků', valid: password.length >= 8 },
-        { regex: /[A-Z]/, message: 'Obsahuje alespoň jedno velké písmeno', valid: /[A-Z]/.test(password) },
-        { regex: /\d/, message: 'Obsahuje alespoň jedno číslo', valid: /\d/.test(password) },
-        { regex: /[!@#$%^&*._,/=?-]/, message: 'Obsahuje alespoň jeden speciální znak', valid: /[!@#$%^&*._,/=?-]/.test(password) },
-    ];
+export const evaluatePassword = (password: string | null): { strength: string; errors: string[] } => {
+    const errorArray: string[] = [];
 
-    const validCriteria = criteria.filter(c => c.valid).length;
-    let strength = '';
-
-    if (validCriteria === 4) {
-        strength = 'Silné';
-    } else if (validCriteria === 3) {
-        strength = 'Střední';
-    } else {
-        strength = 'Slabé';
+    if (!password) {
+        return { strength: "Slabé", errors: ["Napiš něco"] };
     }
 
-    const getStrengthColor = () => {
-        if (strength === 'Silné') return 'green';
-        if (strength === 'Střední') return 'orange';
-        return 'red';
-    };
+    if (password.length < 8) errorArray.push("Heslo je příliš krátké");
+    if (!/[A-Z]/.test(password)) errorArray.push("Heslo neobsahuje velké písmeno");
+    if (!/[0-9]/.test(password)) errorArray.push("Heslo neobsahuje číslo");
+    if (!/[!@#$%^&*]/.test(password)) errorArray.push("Heslo neobsahuje speciální znak");
+    if (!/[😀-🙏]/u.test(password)) errorArray.push("Heslo neobsahuje emoji");
+
+    let strength = "Silné";
+    if (errorArray.length > 3) strength = "Slabé";
+    else if (errorArray.length > 0) strength = "Střední";
+
+    return { strength, errors: errorArray };
+};
+
+const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password }) => {
+    const [errors, setErrors] = useState<string[]>([]);
+    const [passwordStrength, setPasswordStrength] = useState<string>("");
+
+    useEffect(() => {
+        const { strength, errors } = evaluatePassword(password);
+        setErrors(errors);
+        setPasswordStrength(strength);
+    }, [password]);
+
+    useEffect(() => {
+        document.title = `Síla hesla: ${passwordStrength}`;
+    }, [passwordStrength]);
 
     return (
-        <div>
-            <div style={{ width: '100%', height: '10px', backgroundColor: getStrengthColor() }} />
-            <p>Síla hesla: {strength}</p>
-            <ul>
-                {criteria.map((criterion, index) => (
-                    <li key={index} style={{ color: criterion.valid ? 'green' : 'red' }}>
-                        {criterion.message}
-                    </li>
-                ))}
-            </ul>
+        <div className="alert alert-warning mt-2">
+            {errors.length === 0 ? (
+                <p></p>
+            ) : (
+                errors.map((error, index) => (
+                    <p className="text-danger" key={index}>
+                        {error}
+                    </p>
+                ))
+            )}
+            <p className="text-dark">Síla hesla: {passwordStrength}</p>
         </div>
     );
 };

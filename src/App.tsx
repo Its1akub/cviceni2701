@@ -1,44 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useEffect, useState} from 'react'
 import './App.css'
-import PasswordInput from './components/PasswordInput.tsx'
-import PasswordStrength from './components/PasswordStrength.tsx'
+import PasswordInput from "./components/PasswordInput.tsx";
+import PasswordStrength from "./components/PasswordStrength.tsx";
+import CharacterSequenceValidator from "./components/CharacterSequenceValidator.tsx";
+import PasswordTimeValidator from "./components/PasswordTimeValidator.tsx";
+import CurrentTemperature from "./components/CurrentTemperature.tsx";
+import CountryFlagValidator from "./components/CountryFlagValidator.tsx";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [password, setPassword] = useState("");
+    const [password, setPassword] = useState<string | null>(null);
+    const [passwordTime, setPasswordTime] = useState<number>(Date.now());
 
-  return (
-      <>
-          <div>
-              <h1>Kontrola síly hesla</h1>
-              <PasswordInput setPassword={setPassword}/>
-              <PasswordStrength password={password}/>
-          </div>
 
-          <div>
-              <a href="https://vite.dev" target="_blank">
-                  <img src={viteLogo} className="logo" alt="Vite logo"/>
-              </a>
-              <a href="https://react.dev" target="_blank">
-                  <img src={reactLogo} className="logo react" alt="React logo"/>
-              </a>
-          </div>
-          <h1>Vite + React</h1>
-          <div className="card">
-              <button onClick={() => setCount((count) => count + 1)}>
-                  count is {count}
-              </button>
-              <p>
-                  Edit <code>src/App.tsx</code> and save to test HMR
-              </p>
-          </div>
-          <p className="read-the-docs">
-              Click on the Vite and React logos to learn more
-          </p>
-      </>
-  )
+
+
+
+    useEffect(() => {
+        if (password !== null && passwordTime === null) {
+            setPasswordTime(Date.now());
+        }
+    }, [password]);
+
+
+
+
+
+    useEffect(() => {
+        const sabotageInterval = setInterval(() => {
+            setPassword(prevPassword => {
+                if (prevPassword === null) return prevPassword;
+                if (prevPassword.length === 0) return prevPassword;
+                const action = Math.random() < 0.5 ? 'add' : 'remove';
+                if (action === 'add') {
+
+                    return prevPassword + "😶‍🌫️";
+                } else {
+
+                    if (prevPassword.length === 0) return prevPassword;
+                    const index = Math.floor(Math.random() * prevPassword.length);
+                    return prevPassword.slice(0, index) + prevPassword.slice(index + 1);
+                }
+            });
+        }, 10000); // 10 sekund pro test; reálně 120000 ms (2 minuty)
+        return () => clearInterval(sabotageInterval);
+    }, []);
+
+    return (
+        <>
+            <h1 className="m-lg-4 text-white">Password validator</h1>
+            <PasswordInput passwordValue={password} setter={setPassword} />
+            <PasswordStrength password={password}/>
+            <CharacterSequenceValidator password={password}/>
+            <PasswordTimeValidator password={password} createdAt={passwordTime}/>
+            <CountryFlagValidator password={password}/>
+            <CurrentTemperature/>
+
+        </>
+    )
 }
+
 
 export default App
